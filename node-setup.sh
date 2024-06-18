@@ -212,16 +212,16 @@ finalize(){
 
   # Make sure that the node installation is found, else exit
 
-  if [ ! -e "$chaindataPath" ]; then
-	  echo -e "\n\n\t${RED}A node installation was not found. Exiting...${NC}"
-    exit 1
-  fi
+  # if [ ! -e "$chaindataPath" ]; then
+	 #  echo -e "\n\n\t${RED}A node installation was not found. Exiting...${NC}"
+  #   exit 1
+  # fi
 
   # stop the node incase the node is running
-  ./node_src/build/bin/geth --exec "exit" attach ipc:$ipcPath
+  # ./node_src/build/bin/geth --exec "exit" attach ipc:$ipcPath
 
-  echo -e "\n\t${ORANGE}Sleeping for 15 seconds so that the node can shutdown gracefully"
-  sleep 15
+  # echo -e "\n\t${ORANGE}Sleeping for 15 seconds so that the node can shutdown gracefully"
+  # sleep 15
 
   echo -e "\n\n\t${ORANGE}Removing existing chaindata, if any${NC}"
   rm $ipcPath
