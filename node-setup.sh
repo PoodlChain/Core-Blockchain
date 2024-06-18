@@ -130,7 +130,7 @@ labelNodes(){
 
 displayStatus(){
   # start the node
-  echo -e "\n${ORANGE}STATUS: ${GREEN}ALL TASK PASSED!\n This program will now exit\n Now run ./node-start.sh${NC}\n"
+  echo -e "\n${ORANGE}STATUS: ${GREEN}ALL TASK PASSED!\n This program will now exit\n Now run ./node-start.sh if it does not start automatically${NC}\n"
 }
 
 displayWelcome(){
@@ -212,7 +212,7 @@ finalize(){
 
   # Make sure that the node installation is found, else exit
 
-  if [ !(-e "$chaindataPath") ]; then
+  if [ ! -e "$chaindataPath" ]; then
 	  echo -e "\n\n\t${RED}A node installation was not found. Exiting...${NC}"
     exit 1
   fi
