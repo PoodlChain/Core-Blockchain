@@ -224,7 +224,7 @@ finalize(){
   # sleep 15
 
   echo -e "\n\n\t${ORANGE}Removing existing chaindata, if any${NC}"
-  rm $ipcPath
+  # rm $ipcPath
   rm -rf $chaindataPath/chaindata
 
   echo -e "\n\n\t${GREEN}Now importing the snapshot"
