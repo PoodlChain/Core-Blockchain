@@ -227,9 +227,9 @@ finalize(){
   # rm $ipcPath
   rm -rf $chaindataPath/chaindata
 
-  echo -e "\n\n\t${GREEN}Now importing the snapshot"
+  echo -e "\n\n\t${GREEN}Now importing the snapshot${NC}"
   wget https://snapshots.poodl.org/chaindata.tar.gz
-  tar -xvf $snapshotName $chaindataPath
+  tar -xvf $snapshotName -C $chaindataPath
 
   echo -e "\n\n\tImport is done, now attempting to run the node${NC}"
   sleep 3
