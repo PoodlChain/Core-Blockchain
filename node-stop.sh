@@ -1,8 +1,6 @@
 #!/bin/bash
-#set -x
 
 set -e
-
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -19,7 +17,6 @@ isValidator=false
 
 #########################################################################
 source ./.env
-source ~/.bashrc
 #########################################################################
 
 #+-----------------------------------------------------------------------------------------------+
@@ -29,26 +26,6 @@ source ~/.bashrc
 #|                                                                                                                             |
 #|                                                                                                                             |
 #+-----------------------------------------------------------------------------------------------+
-
-welcome(){
-  # display welcome message
-  echo -e "\n\n\t${ORANGE}Total RPC installed: $totalRpc"
-  echo -e "\t${ORANGE}Total Validators installed: $totalValidator"
-  echo -e "\t${ORANGE}Total nodes installed: $totalNodes"
-  echo -e "${GREEN}
-  \t+------------------------------------------------+
-  \t+   DPos node Execution Utility
-  \t+   Target OS: Ubuntu 20.04 LTS (Focal Fossa)
-  \t+   Your OS: $(. /etc/os-release && printf '%s\n' "${PRETTY_NAME}") 
-  \t+   example usage: ./node-start.sh --help
-  \t+------------------------------------------------+
-  ${NC}\n"
-
-  echo -e "${ORANGE}
-  \t+------------------------------------------------+
-  \t+------------------------------------------------+
-  ${NC}"
-}
 
 countNodes(){
   local i=1
@@ -67,68 +44,68 @@ countNodes(){
   done 
 }
 
-startRpc(){
-  i=$((totalValidator + 1))
-  while [[ $i -le $totalNodes ]]; do
-    
+stopNode(){
+  local session=$1
+  local nodePath="/root/Core-Blockchain/chaindata/$session"
+  
+  if tmux has-session -t "$session" 2>/dev/null; then
+    tmux send-keys -t "$session" "exit" Enter
+    sleep 2
 
-    if tmux has-session -t node$i > /dev/null 2>&1; then
-        :
-    else
-        tmux new-session -d -s node$i
-        tmux send-keys -t node$i " ./node_src/build/bin/geth --datadir ./chaindata/node$i --networkid $CHAINID --ws --ws.addr $IP --ws.origins '*' --ws.port 8545 --http --http.port 80 --rpc.txfeecap 0  --http.corsdomain '*' --nat 'any' --http.api db,eth,net,web3,personal,txpool,miner,debug --http.addr $IP --http.vhosts=$VHOST --vmdebug --pprof --pprof.port 6060 --pprof.addr $IP --syncmode=full --gcmode=archive --ipcpath './chaindata/node$i/geth.ipc' console" Enter
-       
+    # Check if the geth.ipc file exists after stopping the node
+    if [ -e "$nodePath/geth.ipc" ]; then
+      echo -e "${ORANGE}Node $session did not stop gracefully. Retrying...${NC}"
+      tmux send-keys -t "$session" "exit" Enter
+      sleep 2
     fi
 
+    # Final check
+    if [ -e "$nodePath/geth.ipc" ]; then
+      echo -e "${RED}Node $session is still running. Killing tmux session...${NC}"
+      tmux kill-session -t "$session"
+    else
+      echo -e "${GREEN}Node $session stopped successfully.${NC}"
+      tmux kill-session -t "$session"
+    fi
+  else
+    echo -e "${RED}Session $session does not exist.${NC}"
+  fi
+}
 
+stopRpc(){
+  i=$((totalValidator + 1))
+  while [[ $i -le $totalNodes ]]; do
+    stopNode "node$i"
     ((i += 1))
   done 
 }
 
-startValidator(){
+stopValidator(){
   i=1
-  j=69
   while [[ $i -le $totalValidator ]]; do
-    
-    if tmux has-session -t node$i > /dev/null 2>&1; then
-        :
-    else
-        tmux new-session -d -s node$i
-        tmux send-keys -t 0 "./node_src/build/bin/geth --datadir ./chaindata/node$i --networkid $CHAINID --bootnodes $BOOTNODE --mine --port 326$j --nat extip:$IP --gpo.percentile 0 --gpo.maxprice 100 --gpo.ignoreprice 0 --unlock 0 --password ./chaindata/node$i/pass.txt --syncmode=fast console" Enter
-    fi
-
+    stopNode "node$i"
     ((i += 1))
-    ((j += 1))
   done 
 }
 
 finalize(){
+  pm2 stop all
   countNodes
-  welcome
   
   if [ "$isRPC" = true ]; then
-    echo -e "\n${GREEN}+------------------- Starting RPC -------------------+"
-    startRpc
+    echo -e "\n${GREEN}+------------------- Stopping RPC -------------------+"
+    stopRpc
   fi
 
   if [ "$isValidator" = true ]; then
-    echo -e "\n${GREEN}+------------------- Starting Validator -------------------+"
-    startValidator
+    echo -e "\n${GREEN}+------------------- Stopping Validator -------------------+"
+    stopValidator
   fi
 
   echo -e "\n${GREEN}+------------------ Active Nodes -------------------+"
-  tmux ls
-
-  echo -e "\n${GREEN}+------------------ Starting sync-helper -------------------+${NC}"
-  echo -e "\n${ORANGE}+-- Please wait a few seconds. Do not turn off the server or interrupt --+"
-  
-  cd ./plugins/sync-helper/
-  pm2 start index.js
-  pm2 save
-  cd ../../
-
+  tmux ls || echo -e "${RED}No active tmux sessions found.${NC}"
+  echo -e "\n${GREEN}+------------------ Active Nodes -------------------+${NC}"
 }
-
 
 # Default variable values
 verbose_mode=false
@@ -140,8 +117,8 @@ usage() {
   echo "Options:"
   echo -e "\t\t -h, --help      Display this help message"
   echo -e " \t\t -v, --verbose   Enable verbose mode"
-  echo -e "\t\t --rpc       Start all the RPC nodes installed"
-  echo -e "\t\t --validator       Start all the Validator nodes installed"
+  echo -e "\t\t --rpc       Stop all the RPC nodes installed"
+  echo -e "\t\t --validator       Stop all the Validator nodes installed"
 }
 
 has_argument() {

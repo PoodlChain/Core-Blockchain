@@ -19,8 +19,8 @@ To back the POODL blockchain you can become a validator. Full flow to become a v
 * Install this package **([See Installation](#installation))**
 * Download your newly created validator wallet from your server and import it into your metamask or preferred wallet. Fund this account with the appropriate POODL tokens needed to become a validator. Example command to download the wallet on your local PC. Only works for UNIX-based OSes or on any environment that can run the OpenSSH package:
 ```bash
-  scp -r root@<server_ip>:/root/Core-Blockchain/chaindata/node1/keystore
-  scp root@<server_ip>:/root/Core-Blockchain/chaindata/node1/pass.txt
+  scp -r root@<server_ip>:/root/Core-Blockchain/chaindata/node1/keystore ./
+  scp root@<server_ip>:/root/Core-Blockchain/chaindata/node1/pass.txt ./
 ```
 * On your server, start the node that you just installed **([See Usage/Example](#usageexamples))**
 * Once the node is started and confirmation is seen on your terminal, open the interactive console by attaching tmux session **([See Usage/Example](#usageexamples))**
