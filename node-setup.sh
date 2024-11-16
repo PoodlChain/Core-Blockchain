@@ -22,6 +22,7 @@ totalNodes=$(($totalRpc + $totalValidator))
 task1(){
   # update and upgrade the server TASK 1
   echo -e "\n\n${ORANGE}TASK: ${GREEN}[Setting up environment]${NC}\n"
+  apt install curl tar wget vim tmux -y
   apt update && apt upgrade -y
   echo -e "\n${GREEN}[TASK 1 PASSED]${NC}\n"
 }
