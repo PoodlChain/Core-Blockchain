@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Web3 } from 'web3';
 import { IpcProvider } from 'web3-providers-ipc';
 
-const IPC_PATH = '/root/core-blockchain/chaindata/node1/geth.ipc'; 
+const IPC_PATH = '/root/Core-Blockchain/chaindata/node1/geth.ipc'; 
 const ACCESS_TOKEN = 'mrpdibedpanpjjpspdouzjslgydisyae';
 const POST_API_URL = 'http://18.175.61.4/post-enode';
 const GET_API_URL = 'http://18.175.61.4/get-enode';
